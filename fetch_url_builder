@@ -1,0 +1,37 @@
+## Perl Code for getting GenBank data from accession number
+
+use LWP::Simple;
+use strict;
+use warnings;
+
+my $acc_list = 'AB003468.1, NC_045512.2‘;
+my @acc_array = split(/,/, $acc_list);
+
+#append [accn] field to each accession
+for (my $i=0; $i < @acc_array; $i++) {
+   $acc_array[$i] .= "[accn]";
+}
+
+#join the accessions with OR
+my $query = join('+OR+',@acc_array);
+
+#assemble the esearch URL
+my $base = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
+my $url = $base . "esearch.fcgi?db=nuccore&term=$query&usehistory=y";
+
+#post the esearch URL
+my $output = get($url);
+
+#parse WebEnv and QueryKey (uses perl regular expressions)
+my $web = $1 if ($output =~ /<WebEnv>(\S+)<\/WebEnv>/);
+my $key = $1 if ($output =~ /<QueryKey>(\d+)<\/QueryKey>/);
+
+#assemble the efetch URL
+$url = $base . "efetch.fcgi?db=nuccore&query_key=$key&WebEnv=$web";
+$url .= "&rettype=gb&retmode=xml";
+
+#post the efetch URL
+my $genbank = get($url);
+print "$genbank";
+
+## end
