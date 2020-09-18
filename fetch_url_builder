@@ -8,20 +8,21 @@
 
 import SwiftUI
 
-
+// **** already in project template **** 
 struct ContentView: View {
     var body: some View {
         Text("Gen-E")
     }
 }
 
+// **** already in project template **** 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
 }
 
-
+// **** GenBank URL builder code ****
 // let accNumber = readLine()
 let accNumber = "AB003468.1"
 
