@@ -1,37 +1,50 @@
-## Perl Code for getting GenBank data from accession number
+// ****** CODE COPIED DIRECTLY FROM ContentView.Swift file in GenE Project Folder *******
+//  ContentView.swift
+//  Gen-E
+//
+//  Created by Ronald Zambrano on 9/18/20.
+//  Copyright © 2020 Group3b. All rights reserved.
+//
 
-use LWP::Simple;
-use strict;
-use warnings;
+import SwiftUI
 
-my $acc_list = 'AB003468.1, NC_045512.2‘;
-my @acc_array = split(/,/, $acc_list);
 
-#append [accn] field to each accession
-for (my $i=0; $i < @acc_array; $i++) {
-   $acc_array[$i] .= "[accn]";
+struct ContentView: View {
+    var body: some View {
+        Text("Gen-E")
+    }
 }
 
-#join the accessions with OR
-my $query = join('+OR+',@acc_array);
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
 
-#assemble the esearch URL
-my $base = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
-my $url = $base . "esearch.fcgi?db=nuccore&term=$query&usehistory=y";
 
-#post the esearch URL
-my $output = get($url);
+// let accNumber = readLine()
+let accNumber = "AB003468.1"
 
-#parse WebEnv and QueryKey (uses perl regular expressions)
-my $web = $1 if ($output =~ /<WebEnv>(\S+)<\/WebEnv>/);
-my $key = $1 if ($output =~ /<QueryKey>(\d+)<\/QueryKey>/);
+// assemble the esearch URL
+var base = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
+var urlSearchString = (base + "esearch.fcgi?db=nuccore&term=" + accNumber + "&usehistory=y")
 
-#assemble the efetch URL
-$url = $base . "efetch.fcgi?db=nuccore&query_key=$key&WebEnv=$web";
-$url .= "&rettype=gb&retmode=xml";
+// post the esearch URL
+let urlSearch = URL(string: urlSearchString)!
+var requestSearch = URLRequest(url:urlSearch)
+requestSearch.httpMethod = "POST"
 
-#post the efetch URL
-my $genbank = get($url);
-print "$genbank";
 
-## end
+// parse WebEnv and QueryKey (need regular expressions) the below code is half perl half swift ... $1 means first match from regex.. wont apply for us since we will only allow one search
+var web = $1 if ($output =~ /<WebEnv>(\S+)<\/WebEnv>/);
+var key = $1 if ($output =~ /<QueryKey>(\d+)<\/QueryKey>/);
+
+// assemble the efetch URL
+var urlFetchString = (base + "efetch.fcgi?db=nuccore&query_key=" + key + "+&WebEnv=" + web + "&rettype=genbank&retmode=text")
+
+// post the efetch URL
+let urlFetch = URL(string: urlFetchString)!
+var requestFetch = URLRequest(url:urlFetch)
+requestFetch.httpMethod = "POST"
+
+
